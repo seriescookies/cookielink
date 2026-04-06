@@ -24,33 +24,6 @@
       gap: 12px;
     }
 
-    /* ── 헤더 ── */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 4px 0 8px;
-    }
-    .header-icon {
-      width: 34px; height: 34px;
-      background: linear-gradient(135deg, #7c5cfc, #c471ed);
-      border-radius: 10px;
-      display: grid; place-items: center;
-      font-size: 17px;
-      flex-shrink: 0;
-    }
-    .header-title {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: #1a1a2e;
-    }
-    .header-sub {
-      font-size: 11px;
-      color: #999;
-      margin-top: 1px;
-    }
-
     /* ── 버튼 그룹 ── */
     .btnbase {
       display: flex;
@@ -61,11 +34,12 @@
       height: 44px;
       border: none;
       border-radius: 12px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       transition: opacity .15s, transform .1s;
       letter-spacing: -0.2px;
+      white-space: nowrap;
     }
     .btn:active { opacity: .75; transform: scale(.97); }
 
@@ -79,122 +53,16 @@
       color: #555;
       border: 1px solid #ddd;
     }
-    .btn-auto {
-      flex: 0 0 72px;
-      background: #ede8ff;
-      color: #7c5cfc;
-      border: 1px solid #d0c4ff;
+    .btn-pause {
+      background: #fff3e0;
+      color: #e67e00;
+      border: 1px solid #ffd599;
     }
-
-    /* ── 텍스트 에리어 ── */
-    .textarea-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
+    .btn-collect {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
     }
-    .textarea-label {
-      font-size: 11px;
-      color: #aaa;
-      margin-bottom: 6px;
-      padding-left: 2px;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
-    textarea {
-      flex: 1;
-      width: 100%;
-      background: #fff;
-      border: 1px solid #e0e0ee;
-      border-radius: 14px;
-      color: #2a2a4a;
-      font-size: 13px;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      padding: 14px;
-      resize: none;
-      line-height: 1.7;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
-      box-shadow: 0 2px 8px #0000000a;
-    }
-    textarea::placeholder { color: #bbb; }
-    textarea:focus {
-      border-color: #7c5cfc88;
-      box-shadow: 0 0 0 3px #7c5cfc18;
-    }
-
-    /* ── 결과 화면 ── */
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .result-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #999;
-    }
-    .btn-close {
-      height: 34px;
-      padding: 0 16px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #fff;
-      color: #666;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity .15s;
-    }
-    .btn-close:active { opacity: .7; }
-
-    .result-scroll {
-      flex: 1;
-      background: #fff;
-      border: 1px solid #e0e0ee;
-      border-radius: 14px;
-      overflow-y: auto;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 2px 8px #0000000a;
-    }
-
-    .link-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: #f7f5ff;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background .15s;
-      border: 1px solid #ede8ff;
-    }
-    .link-item:hover { background: #ede8ff; }
-    .link-item:active { background: #e0d8ff; }
-    .link-item[checked] {
-      background: #f5f5f5;
-      border-color: #e8e8e8;
-      opacity: .5;
-    }
-    .link-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #7c5cfc;
-      flex-shrink: 0;
-      transition: background .2s;
-    }
-    .link-item[checked] .link-dot { background: #ccc; }
-    .link-text {
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 12px;
-      color: #5a5a8a;
-      word-break: break-all;
-    }
-    .link-item[checked] .link-text { color: #bbb; }
 
     /* ── 진행 표시 ── */
     .progress-bar-wrap {
@@ -211,128 +79,294 @@
       border-radius: 2px;
     }
 
+    /* ── 메타 ── */
+    .result-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+    }
+    .result-title  { font-size: 11px; font-weight: 600; color: #aaa; }
+    .collect-label { font-size: 11px; font-weight: 600; color: #2e7d32; }
+
+    /* ── 콘텐츠 영역 (입력 or 리스트) ── */
+    .content-area {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #e0e0ee;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px #0000000a;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 입력 패널 */
+    .input-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+    }
+    .number-input {
+      width: 160px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid #e0e0ee;
+      border-radius: 0;
+      color: #2a2a4a;
+      font-size: 18px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-weight: 600;
+      padding: 0 4px;
+      outline: none;
+      transition: border-color .2s;
+      -moz-appearance: textfield;
+    }
+    .number-input::-webkit-inner-spin-button,
+    .number-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .number-input::placeholder { color: #ccc; font-size: 13px; font-weight: 400; }
+    .number-input:focus { border-color: #7c5cfc; }
+
+    /* 리스트 패널 */
+    .list-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f7f5ff;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+      border: 1px solid #ede8ff;
+      user-select: none;
+    }
+    .link-item:hover { background: #ede8ff; }
+    .link-item:active { background: #e0d8ff; }
+    .link-item[data-done] {
+      background: #f5f5f5;
+      border-color: #e8e8e8;
+      opacity: .45;
+    }
+    .link-item[data-current] {
+      background: #ede8ff;
+      border-color: #7c5cfc;
+      box-shadow: 0 0 0 2px #7c5cfc22;
+      opacity: 1;
+    }
+    .link-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #7c5cfc;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+    .link-item[data-done] .link-dot { background: #ccc; }
+    .link-text {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: #5a5a8a;
+    }
+    .link-item[data-done] .link-text { color: #bbb; }
+
     [hidden] { display: none !important; }
   </style>
 </head>
 <body>
 
-<!-- 입력 화면 -->
-<div class="base" id="input">
-  <div class="header">
-    <div class="header-icon">🔗</div>
-    <div>
-      <div class="header-title">링크 생성기</div>
-      <div class="header-sub">naverbooks 딥링크 도구</div>
-    </div>
-  </div>
-
+<div class="base">
+  <!-- 상단 버튼 4개 -->
   <div class="btnbase">
-    <button class="btn btn-primary" id="autoopen">▶ 자동 오픈</button>
-    <button class="btn btn-secondary" id="make">링크 생성</button>
-    <button class="btn btn-auto" id="automake">자동 생성</button>
+    <button class="btn btn-secondary" id="btnGenerate">링크 생성</button>
+    <button class="btn btn-primary"   id="btnAutoOpen">자동 오픈 ▶</button>
+    <button class="btn btn-pause"     id="btnPause">일시멈춤 ▥</button>
+    <button class="btn btn-collect"   id="btnCollect">링크 추림</button>
   </div>
 
-  <div class="textarea-wrap">
-    <div class="textarea-label">링크 목록 입력</div>
-    <textarea id="links" placeholder="naverbooks://my&#10;naverbooks://event/cookie?eventNo=123"></textarea>
-  </div>
-</div>
-
-<!-- 결과 화면 -->
-<div class="base" id="output" hidden>
-  <div class="result-header">
-    <div class="result-title" id="result-count">링크 0개</div>
-    <button class="btn-close" id="close">✕ 닫기</button>
-  </div>
-
+  <!-- 진행 바 -->
   <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progress"></div>
+    <div class="progress-bar" id="progressBar"></div>
   </div>
 
-  <div class="result-scroll" id="result"></div>
+  <!-- 메타 -->
+  <div class="result-meta">
+    <div class="result-title"  id="resultCount"></div>
+    <div class="collect-label" id="collectCount"></div>
+  </div>
+
+  <!-- 콘텐츠 영역 -->
+  <div class="content-area">
+    <!-- 입력 패널 -->
+    <div class="input-panel" id="inputPanel">
+      <input class="number-input" id="startNum" type="number" inputmode="numeric" placeholder="시작 번호">
+    </div>
+
+    <!-- 리스트 패널 -->
+    <div class="list-panel" id="listPanel" hidden></div>
+  </div>
 </div>
 
 <script>
   let isAutoMode = false;
-  let totalLinks = 0;
-
-  const show = id => {
-    document.getElementById('input').hidden = (id !== 'input');
-    document.getElementById('output').hidden = (id !== 'output');
-  };
+  let autoIndex  = 0;
+  let lastHref   = null;
+  let collected  = [];
 
   const updateProgress = () => {
-    if (!totalLinks) return;
-    const checked = document.querySelectorAll('.link-item[checked]').length;
-    document.getElementById('progress').style.width = (checked / totalLinks * 100) + '%';
-    document.getElementById('result-count').textContent = `링크 ${totalLinks}개 · ${checked}개 완료`;
+    const items = document.querySelectorAll('#listPanel .link-item');
+    const done  = document.querySelectorAll('#listPanel .link-item[data-done]').length;
+    const total = items.length;
+    document.getElementById('progressBar').style.width = total ? (done / total * 100) + '%' : '0%';
+    document.getElementById('resultCount').textContent = total ? `링크 ${total}개 · ${done}개 완료` : '';
   };
 
-  const addLink = (dom, href) => {
-    const a = document.createElement('a');
-    a.className = 'link-item';
-    a.href = href;
-    a.innerHTML = `<div class="link-dot"></div><div class="link-text">${href}</div>`;
-    a.addEventListener('click', () => {
-      a.setAttribute('checked', '');
-      updateProgress();
-      if (isAutoMode) setTimeout(autoClickNext, 500);
-    });
-    dom.appendChild(a);
+  const updateCollectCount = () => {
+    document.getElementById('collectCount').textContent = collected.length ? `수집 ${collected.length}개` : '';
+  };
+
+  const markCurrent = el => {
+    document.querySelectorAll('#listPanel .link-item[data-current]')
+      .forEach(e => e.removeAttribute('data-current'));
+    if (el) el.setAttribute('data-current', '');
+  };
+
+  const openDeeplink = (el, byAuto) => {
+    lastHref = el.dataset.href;
+    el.setAttribute('data-done', '');
+    markCurrent(el);
+    updateProgress();
+    if (byAuto) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    window.location.href = el.dataset.href;
   };
 
   const autoClickNext = () => {
-    const next = document.querySelector('.link-item:not([checked])');
-    if (next && isAutoMode) next.click();
+    if (!isAutoMode) return;
+    const items = [...document.querySelectorAll('#listPanel .link-item')];
+    for (let i = autoIndex; i < items.length; i++) {
+      if (!items[i].hasAttribute('data-done')) {
+        autoIndex = i + 1;
+        openDeeplink(items[i], true);
+        return;
+      }
+    }
+    isAutoMode = false;
+    markCurrent(null);
   };
 
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 500);
+    if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 2000);
   });
 
-  const makeLinks = () => {
-    const dom = document.getElementById('result');
-    dom.innerHTML = '';
-    addLink(dom, 'naverbooks://my');
-    for (const line of document.getElementById('links').value.split('\n')) {
-      const t = line.trim();
-      if (!t || !t.startsWith('naverbooks://')) continue;
-      addLink(dom, t);
+  const buildList = val => {
+    isAutoMode = false;
+    autoIndex  = 0;
+    lastHref   = null;
+    collected  = [];
+    updateCollectCount();
+
+    const panel = document.getElementById('listPanel');
+    panel.innerHTML = '';
+
+    for (let i = val; i < val + 50; i++) {
+      const href = `naverbooks://event/cookie?eventNo=${i}`;
+      const a = document.createElement('a');
+      a.className = 'link-item';
+      a.dataset.href = href;
+      a.innerHTML = `<div class="link-dot"></div><div class="link-text">${i}</div>`;
+      a.addEventListener('click', e => { e.preventDefault(); openDeeplink(a, false); });
+      panel.appendChild(a);
     }
-    totalLinks = dom.querySelectorAll('.link-item').length;
+
     updateProgress();
-    show('output');
+    document.getElementById('inputPanel').hidden = true;
+    document.getElementById('listPanel').hidden  = false;
   };
 
-  const autoMakeLinks = () => {
-    const index = parseInt(document.getElementById('links').value, 10);
-    if (isNaN(index)) return alert('숫자를 입력해주세요.');
-    const dom = document.getElementById('result');
-    dom.innerHTML = '';
-    for (let i = index; i < index + 30; i++) {
-      addLink(dom, `naverbooks://event/cookie?eventNo=${i}`);
-    }
-    totalLinks = dom.querySelectorAll('.link-item').length;
-    updateProgress();
-    show('output');
+  const resetToInput = () => {
+    isAutoMode = false;
+    document.getElementById('listPanel').hidden  = true;
+    document.getElementById('inputPanel').hidden = false;
+    document.getElementById('startNum').value = '';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('resultCount').textContent = '';
+    document.getElementById('startNum').focus();
   };
 
-  document.getElementById('autoopen').addEventListener('click', () => {
-    makeLinks();
+  const doGenerate = () => {
+    const val = parseInt(document.getElementById('startNum').value, 10);
+    if (isNaN(val)) {
+      // 리스트가 보이는 중이면 입력 패널로 전환
+      if (!document.getElementById('listPanel').hidden) resetToInput();
+      return;
+    }
+    buildList(val);
+  };
+
+  document.getElementById('btnGenerate').addEventListener('click', doGenerate);
+  document.getElementById('startNum').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doGenerate();
+  });
+
+  document.getElementById('btnAutoOpen').addEventListener('click', () => {
+    if (document.getElementById('listPanel').hidden) return;
     isAutoMode = true;
-    setTimeout(autoClickNext, 500);
+    autoClickNext();
   });
-  document.getElementById('make').addEventListener('click', () => {
+
+  document.getElementById('btnPause').addEventListener('click', () => {
     isAutoMode = false;
-    makeLinks();
+    if (!lastHref) return;
+    if (!collected.find(l => l.href === lastHref)) {
+      const num = lastHref.match(/eventNo=(\d+)/)?.[1];
+      if (num) { collected.push({ num, href: lastHref }); updateCollectCount(); }
+    }
+    navigator.clipboard.writeText(lastHref).catch(() => {});
   });
-  document.getElementById('automake').addEventListener('click', () => {
-    isAutoMode = false;
-    autoMakeLinks();
-  });
-  document.getElementById('close').addEventListener('click', () => {
-    isAutoMode = false;
-    show('input');
+
+  document.getElementById('btnCollect').addEventListener('click', () => {
+    if (!collected.length) { alert('수집된 링크가 없습니다.'); return; }
+    const rows = collected.map(l =>
+      `<a href="${l.href}"><div class="dot"></div><div class="num">${l.num}</div></a>`
+    ).join('\n    ');
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>수집된 링크</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f7; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    h2 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
+    .list { display: flex; flex-direction: column; gap: 4px; }
+    a { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #f7f5ff; border: 1px solid #ede8ff; text-decoration: none; cursor: pointer; transition: background .15s; }
+    a:hover { background: #ede8ff; }
+    a:active { background: #e0d8ff; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #7c5cfc; flex-shrink: 0; }
+    .num { font-family: 'SF Mono','Fira Code',monospace; font-size: 14px; font-weight: 600; color: #5a5a8a; }
+  </style>
+</head>
+<body>
+  <h2>수집된 링크 · ${collected.length}개</h2>
+  <div class="list">
+    ${rows}
+  </div>
+</body>
+</html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    window.open(URL.createObjectURL(blob), '_blank');
   });
 </script>
 </body>
