@@ -49,9 +49,9 @@
       box-shadow: 0 4px 14px #7c5cfc44;
     }
     .btn-secondary {
-      background: #fff;
-      color: #555;
-      border: 1px solid #ddd;
+      background: #fff0f3;
+      color: #d63e6e;
+      border: 1px solid #f7c5d2;
     }
     .btn-pause {
       background: #fff3e0;
@@ -189,10 +189,10 @@
 <div class="base">
   <!-- 상단 버튼 4개 -->
   <div class="btnbase">
-    <button class="btn btn-secondary" id="btnGenerate">링크 생성</button>
+    <button class="btn btn-secondary" id="btnGenerate">링크 생성 ●</button>
     <button class="btn btn-primary"   id="btnAutoOpen">자동 오픈 ▶</button>
-    <button class="btn btn-pause"     id="btnPause">일시멈춤 ▥</button>
-    <button class="btn btn-collect"   id="btnCollect">링크 추림</button>
+    <button class="btn btn-pause"     id="btnPause">일시멈춤 ▣</button>
+    <button class="btn btn-collect"   id="btnCollect">링크 추림 ★</button>
   </div>
 
   <!-- 진행 바 -->
@@ -292,6 +292,7 @@
     updateProgress();
     document.getElementById('inputPanel').hidden = true;
     document.getElementById('listPanel').hidden  = false;
+    document.getElementById('btnGenerate').textContent = '리셋';
   };
 
   const resetToInput = () => {
@@ -301,16 +302,15 @@
     document.getElementById('startNum').value = '';
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('resultCount').textContent = '';
+    document.getElementById('btnGenerate').textContent = '링크 생성 ●';
     document.getElementById('startNum').focus();
   };
 
   const doGenerate = () => {
+    // 리스트가 보이는 중이면 리셋
+    if (!document.getElementById('listPanel').hidden) { resetToInput(); return; }
     const val = parseInt(document.getElementById('startNum').value, 10);
-    if (isNaN(val)) {
-      // 리스트가 보이는 중이면 입력 패널로 전환
-      if (!document.getElementById('listPanel').hidden) resetToInput();
-      return;
-    }
+    if (isNaN(val)) return;
     buildList(val);
   };
 
