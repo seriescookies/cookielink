@@ -87,7 +87,27 @@
       padding: 0 2px;
     }
     .result-title { font-size: 11px; font-weight: 600; color: #aaa; }
-    .star-label   { font-size: 11px; font-weight: 600; color: #f57f17; }
+    .star-label {
+      font-size: 11px; font-weight: 600; color: #f57f17;
+      cursor: pointer; padding: 2px 6px; border-radius: 6px;
+      transition: background .15s;
+    }
+    .star-label:hover { background: #ffe082; }
+    .star-label:active { background: #ffd54f; }
+
+    /* 토스트 */
+    .toast {
+      position: fixed;
+      bottom: 28px; left: 50%; transform: translateX(-50%) translateY(12px);
+      background: #333; color: #fff;
+      font-size: 12px; font-weight: 600;
+      padding: 8px 16px; border-radius: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── 콘텐츠 영역 ── */
     .content-area {
@@ -216,6 +236,7 @@
     <div class="result-title" id="resultCount"></div>
     <div class="star-label"   id="starCount"></div>
   </div>
+  <div class="toast" id="toast"></div>
 
   <!-- 콘텐츠 영역 -->
   <div class="content-area">
@@ -243,10 +264,27 @@
     document.getElementById('resultCount').textContent = total ? `링크 ${total}개 · ${done}개 완료` : '';
   };
 
+  const showToast = msg => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+  };
+
   const updateStarCount = () => {
     const count = document.querySelectorAll('#listPanel .link-item[data-star]').length;
-    document.getElementById('starCount').textContent = count ? `★ ${count}개` : '';
+    document.getElementById('starCount').textContent = count ? `★ ${count}개 (탭하여 복사)` : '';
   };
+
+  document.getElementById('starCount').addEventListener('click', () => {
+    const nums = [...document.querySelectorAll('#listPanel .link-item[data-star] .link-text')]
+      .map(el => el.textContent).join('\n');
+    if (!nums) return;
+    navigator.clipboard.writeText(nums)
+      .then(() => showToast('★ 번호 복사됨'))
+      .catch(() => showToast('복사 실패'));
+  });
 
   const markCurrent = el => {
     document.querySelectorAll('#listPanel .link-item[data-current]')
