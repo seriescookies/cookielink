@@ -43,25 +43,25 @@
     }
     .btn:active { opacity: .75; transform: scale(.97); }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #7c5cfc, #c471ed);
-      color: #fff;
-      box-shadow: 0 4px 14px #7c5cfc44;
-    }
-    .btn-secondary {
+    .btn-manual {
       background: #fff0f3;
       color: #d63e6e;
       border: 1px solid #f7c5d2;
     }
-    .btn-pause {
-      background: #fff3e0;
-      color: #e67e00;
-      border: 1px solid #ffd599;
+    .btn-autogen {
+      background: linear-gradient(135deg, #7c5cfc, #c471ed);
+      color: #fff;
+      box-shadow: 0 4px 14px #7c5cfc44;
     }
-    .btn-collect {
-      background: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #a5d6a7;
+    .btn-autoopen {
+      background: #e3f0ff;
+      color: #1565c0;
+      border: 1px solid #90caf9;
+    }
+    .btn-star {
+      background: #fffde7;
+      color: #f57f17;
+      border: 1px solid #ffe082;
     }
 
     /* ── 진행 표시 ── */
@@ -86,10 +86,10 @@
       justify-content: space-between;
       padding: 0 2px;
     }
-    .result-title  { font-size: 11px; font-weight: 600; color: #aaa; }
-    .collect-label { font-size: 11px; font-weight: 600; color: #2e7d32; }
+    .result-title { font-size: 11px; font-weight: 600; color: #aaa; }
+    .star-label   { font-size: 11px; font-weight: 600; color: #f57f17; }
 
-    /* ── 콘텐츠 영역 (입력 or 리스트) ── */
+    /* ── 콘텐츠 영역 ── */
     .content-area {
       flex: 1;
       background: #fff;
@@ -108,26 +108,24 @@
       flex-direction: column;
       padding: 14px;
     }
-    .number-input {
-      width: 160px;
-      height: 36px;
+    .number-textarea {
+      flex: 1;
+      width: 100%;
       background: transparent;
-      border: none;
-      border-bottom: 2px solid #e0e0ee;
-      border-radius: 0;
+      border: 1px solid #e0e0ee;
+      border-radius: 8px;
       color: #2a2a4a;
-      font-size: 18px;
+      font-size: 16px;
       font-family: 'SF Mono', 'Fira Code', monospace;
       font-weight: 600;
-      padding: 0 4px;
+      padding: 8px 10px;
       outline: none;
+      resize: none;
+      line-height: 1.8;
       transition: border-color .2s;
-      -moz-appearance: textfield;
     }
-    .number-input::-webkit-inner-spin-button,
-    .number-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-    .number-input::placeholder { color: #ccc; font-size: 13px; font-weight: 400; }
-    .number-input:focus { border-color: #7c5cfc; }
+    .number-textarea::placeholder { color: #ccc; font-size: 13px; font-weight: 400; line-height: 1.6; }
+    .number-textarea:focus { border-color: #7c5cfc; }
 
     /* 리스트 패널 */
     .list-panel {
@@ -159,6 +157,11 @@
       border-color: #e8e8e8;
       opacity: .45;
     }
+    .link-item[data-star] {
+      opacity: 1 !important;
+      background: #fffde7 !important;
+      border-color: #ffe082 !important;
+    }
     .link-item[data-current] {
       background: #ede8ff;
       border-color: #7c5cfc;
@@ -173,13 +176,21 @@
       transition: background .2s;
     }
     .link-item[data-done] .link-dot { background: #ccc; }
+    .link-item[data-star] .link-dot { background: #f57f17; }
     .link-text {
+      flex: 1;
       font-family: 'SF Mono', 'Fira Code', monospace;
       font-size: 14px;
       font-weight: 600;
       color: #5a5a8a;
     }
     .link-item[data-done] .link-text { color: #bbb; }
+    .link-item[data-star] .link-text { color: #c8860a; }
+    .link-star-badge {
+      font-size: 13px;
+      display: none;
+    }
+    .link-item[data-star] .link-star-badge { display: block; }
 
     [hidden] { display: none !important; }
   </style>
@@ -189,10 +200,10 @@
 <div class="base">
   <!-- 상단 버튼 4개 -->
   <div class="btnbase">
-    <button class="btn btn-secondary" id="btnGenerate">링크 생성 ●</button>
-    <button class="btn btn-primary"   id="btnAutoOpen">자동 오픈 ▶</button>
-    <button class="btn btn-pause"     id="btnPause">일시멈춤 ▣</button>
-    <button class="btn btn-collect"   id="btnCollect">링크 추림 ★</button>
+    <button class="btn btn-manual"   id="btnManual">지정 링크</button>
+    <button class="btn btn-autogen"  id="btnAutoGen">링크 자동생성</button>
+    <button class="btn btn-autoopen" id="btnAutoOpen">자동활성화</button>
+    <button class="btn btn-star"     id="btnStar">★표시</button>
   </div>
 
   <!-- 진행 바 -->
@@ -202,15 +213,16 @@
 
   <!-- 메타 -->
   <div class="result-meta">
-    <div class="result-title"  id="resultCount"></div>
-    <div class="collect-label" id="collectCount"></div>
+    <div class="result-title" id="resultCount"></div>
+    <div class="star-label"   id="starCount"></div>
   </div>
 
   <!-- 콘텐츠 영역 -->
   <div class="content-area">
     <!-- 입력 패널 -->
     <div class="input-panel" id="inputPanel">
-      <input class="number-input" id="startNum" type="number" inputmode="numeric" placeholder="시작 번호">
+      <textarea class="number-textarea" id="numInput"
+        placeholder="번호 입력 (한 줄에 하나씩)&#10;&#10;지정 링크  → 입력한 번호 각각&#10;링크 자동생성 → 첫 번호부터 50개"></textarea>
     </div>
 
     <!-- 리스트 패널 -->
@@ -221,8 +233,7 @@
 <script>
   let isAutoMode = false;
   let autoIndex  = 0;
-  let lastHref   = null;
-  let collected  = [];
+  let lastEl     = null;
 
   const updateProgress = () => {
     const items = document.querySelectorAll('#listPanel .link-item');
@@ -232,8 +243,9 @@
     document.getElementById('resultCount').textContent = total ? `링크 ${total}개 · ${done}개 완료` : '';
   };
 
-  const updateCollectCount = () => {
-    document.getElementById('collectCount').textContent = collected.length ? `수집 ${collected.length}개` : '';
+  const updateStarCount = () => {
+    const count = document.querySelectorAll('#listPanel .link-item[data-star]').length;
+    document.getElementById('starCount').textContent = count ? `★ ${count}개` : '';
   };
 
   const markCurrent = el => {
@@ -243,7 +255,7 @@
   };
 
   const openDeeplink = (el, byAuto) => {
-    lastHref = el.dataset.href;
+    lastEl = el;
     el.setAttribute('data-done', '');
     markCurrent(el);
     updateProgress();
@@ -269,104 +281,82 @@
     if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 1000);
   });
 
-  const buildList = val => {
+  const getNumbers = () =>
+    document.getElementById('numInput').value
+      .split(/[\n,\s]+/)
+      .map(s => parseInt(s.trim(), 10))
+      .filter(n => !isNaN(n));
+
+  const createItem = num => {
+    const href = `naverbooks://event/cookie?eventNo=${num}`;
+    const a = document.createElement('a');
+    a.className = 'link-item';
+    a.dataset.href = href;
+    a.innerHTML = `<div class="link-dot"></div><div class="link-text">${num}</div><div class="link-star-badge">★</div>`;
+    a.addEventListener('click', e => { e.preventDefault(); openDeeplink(a, false); });
+    return a;
+  };
+
+  const buildList = nums => {
     isAutoMode = false;
     autoIndex  = 0;
-    lastHref   = null;
-    collected  = [];
-    updateCollectCount();
+    lastEl     = null;
 
     const panel = document.getElementById('listPanel');
     panel.innerHTML = '';
-
-    for (let i = val; i < val + 50; i++) {
-      const href = `naverbooks://event/cookie?eventNo=${i}`;
-      const a = document.createElement('a');
-      a.className = 'link-item';
-      a.dataset.href = href;
-      a.innerHTML = `<div class="link-dot"></div><div class="link-text">${i}</div>`;
-      a.addEventListener('click', e => { e.preventDefault(); openDeeplink(a, false); });
-      panel.appendChild(a);
-    }
+    nums.forEach(n => panel.appendChild(createItem(n)));
 
     updateProgress();
+    updateStarCount();
     document.getElementById('inputPanel').hidden = true;
     document.getElementById('listPanel').hidden  = false;
-    document.getElementById('btnGenerate').textContent = '리셋';
   };
 
   const resetToInput = () => {
     isAutoMode = false;
+    lastEl = null;
     document.getElementById('listPanel').hidden  = true;
     document.getElementById('inputPanel').hidden = false;
-    document.getElementById('startNum').value = '';
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('resultCount').textContent = '';
-    document.getElementById('btnGenerate').textContent = '링크 생성 ●';
-    document.getElementById('startNum').focus();
+    document.getElementById('starCount').textContent   = '';
+    document.getElementById('numInput').focus();
   };
 
-  const doGenerate = () => {
-    // 리스트가 보이는 중이면 리셋
-    if (!document.getElementById('listPanel').hidden) { resetToInput(); return; }
-    const val = parseInt(document.getElementById('startNum').value, 10);
-    if (isNaN(val)) return;
-    buildList(val);
-  };
+  const isListVisible = () => !document.getElementById('listPanel').hidden;
 
-  document.getElementById('btnGenerate').addEventListener('click', doGenerate);
-  document.getElementById('startNum').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doGenerate();
+  // 지정 링크: 입력된 번호들 각각 링크 생성
+  document.getElementById('btnManual').addEventListener('click', () => {
+    if (isListVisible()) { resetToInput(); return; }
+    const nums = getNumbers();
+    if (!nums.length) return;
+    buildList(nums);
   });
 
+  // 링크 자동생성: 첫 번째 숫자부터 50개 순차 생성
+  document.getElementById('btnAutoGen').addEventListener('click', () => {
+    if (isListVisible()) { resetToInput(); return; }
+    const nums = getNumbers();
+    if (!nums.length) return;
+    buildList(Array.from({ length: 50 }, (_, i) => nums[0] + i));
+  });
+
+  // 자동활성화
   document.getElementById('btnAutoOpen').addEventListener('click', () => {
-    if (document.getElementById('listPanel').hidden) return;
+    if (!isListVisible()) return;
     isAutoMode = true;
     autoClickNext();
   });
 
-  document.getElementById('btnPause').addEventListener('click', () => {
-    isAutoMode = false;
-    if (!lastHref) return;
-    if (!collected.find(l => l.href === lastHref)) {
-      const num = lastHref.match(/eventNo=(\d+)/)?.[1];
-      if (num) { collected.push({ num, href: lastHref }); updateCollectCount(); }
+  // ★표시: 마지막 활성화된 링크에 별표 토글
+  document.getElementById('btnStar').addEventListener('click', () => {
+    if (!lastEl) return;
+    if (lastEl.hasAttribute('data-star')) {
+      lastEl.removeAttribute('data-star');
+    } else {
+      lastEl.setAttribute('data-star', '');
     }
-    navigator.clipboard.writeText(lastHref).catch(() => {});
-  });
-
-  document.getElementById('btnCollect').addEventListener('click', () => {
-    if (!collected.length) { alert('수집된 링크가 없습니다.'); return; }
-    const rows = collected.map(l =>
-      `<a href="${l.href}"><div class="dot"></div><div class="num">${l.num}</div></a>`
-    ).join('\n    ');
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>수집된 링크</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f7; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    h2 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
-    .list { display: flex; flex-direction: column; gap: 4px; }
-    a { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #f7f5ff; border: 1px solid #ede8ff; text-decoration: none; cursor: pointer; transition: background .15s; }
-    a:hover { background: #ede8ff; }
-    a:active { background: #e0d8ff; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: #7c5cfc; flex-shrink: 0; }
-    .num { font-family: 'SF Mono','Fira Code',monospace; font-size: 14px; font-weight: 600; color: #5a5a8a; }
-  </style>
-</head>
-<body>
-  <h2>수집된 링크 · ${collected.length}개</h2>
-  <div class="list">
-    ${rows}
-  </div>
-</body>
-</html>`;
-    const blob = new Blob([html], { type: 'text/html' });
-    window.open(URL.createObjectURL(blob), '_blank');
+    updateStarCount();
   });
 </script>
 </body>
