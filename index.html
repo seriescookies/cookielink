@@ -266,7 +266,7 @@
   };
 
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 2000);
+    if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 1000);
   });
 
   const buildList = val => {
