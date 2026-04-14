@@ -326,7 +326,7 @@
       .filter(n => !isNaN(n));
 
   const createItem = num => {
-    const href = `naverbooks://event/cookie?eventNo=${num}`;
+    const href = `naverbooks://event?eventNo=${num}`;
     const a = document.createElement('a');
     a.className = 'link-item';
     a.dataset.href = href;
