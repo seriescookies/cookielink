@@ -243,7 +243,7 @@
     <!-- 입력 패널 -->
     <div class="input-panel" id="inputPanel">
       <textarea class="number-textarea" id="numInput"
-        placeholder="번호 입력 (한 줄에 하나씩)&#10;&#10;지정 링크  → 입력한 번호 각각&#10;링크 자동생성 → 첫 번호부터 50개"></textarea>
+        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;숫자 → naverbooks://event?eventNo=숫자&#10;naverbooks://... → 그대로 활성화&#10;자동생성 → 첫 번호부터 50개"></textarea>
     </div>
 
     <!-- 리스트 패널 -->
@@ -319,30 +319,41 @@
     if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 1000);
   });
 
-  const getNumbers = () =>
+  const getInputs = () =>
     document.getElementById('numInput').value
-      .split(/[\n,\s]+/)
-      .map(s => parseInt(s.trim(), 10))
-      .filter(n => !isNaN(n));
+      .split(/\n/)
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .map(s => {
+        if (s.startsWith('naverbooks://')) return { href: s, label: s };
+        const n = parseInt(s, 10);
+        if (!isNaN(n)) return { href: `naverbooks://event?eventNo=${n}`, label: String(n) };
+        return null;
+      })
+      .filter(Boolean);
 
-  const createItem = num => {
-    const href = `naverbooks://event?eventNo=${num}`;
+  const getNumbers = () =>
+    getInputs()
+      .filter(item => /^\d+$/.test(item.label))
+      .map(item => parseInt(item.label, 10));
+
+  const createItem = ({ href, label }) => {
     const a = document.createElement('a');
     a.className = 'link-item';
     a.dataset.href = href;
-    a.innerHTML = `<div class="link-dot"></div><div class="link-text">${num}</div><div class="link-star-badge">★</div>`;
+    a.innerHTML = `<div class="link-dot"></div><div class="link-text">${label}</div><div class="link-star-badge">★</div>`;
     a.addEventListener('click', e => { e.preventDefault(); openDeeplink(a, false); });
     return a;
   };
 
-  const buildList = nums => {
+  const buildList = items => {
     isAutoMode = false;
     autoIndex  = 0;
     lastEl     = null;
 
     const panel = document.getElementById('listPanel');
     panel.innerHTML = '';
-    nums.forEach(n => panel.appendChild(createItem(n)));
+    items.forEach(item => panel.appendChild(createItem(item)));
 
     updateProgress();
     updateStarCount();
@@ -366,9 +377,9 @@
   // 지정 링크: 입력된 번호들 각각 링크 생성
   document.getElementById('btnManual').addEventListener('click', () => {
     if (isListVisible()) { resetToInput(); return; }
-    const nums = getNumbers();
-    if (!nums.length) return;
-    buildList(nums);
+    const items = getInputs();
+    if (!items.length) return;
+    buildList(items);
   });
 
   // 링크 자동생성: 첫 번째 숫자부터 50개 순차 생성
@@ -376,7 +387,10 @@
     if (isListVisible()) { resetToInput(); return; }
     const nums = getNumbers();
     if (!nums.length) return;
-    buildList(Array.from({ length: 50 }, (_, i) => nums[0] + i));
+    buildList(Array.from({ length: 50 }, (_, i) => {
+      const n = nums[0] + i;
+      return { href: `naverbooks://event?eventNo=${n}`, label: String(n) };
+    }));
   });
 
   // 자동활성화
