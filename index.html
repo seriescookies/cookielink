@@ -243,7 +243,7 @@
     <!-- 입력 패널 -->
     <div class="input-panel" id="inputPanel">
       <textarea class="number-textarea" id="numInput"
-        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;5자리 → event?eventNo=숫자&#10;6자리 → titleEnd?contentId=숫자&#10;694602_1 → viewer (NOVEL)&#10;naverbooks://... → 그대로 활성화"></textarea>
+        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;5자리 → event?eventNo=숫자&#10;6자리 → titleEnd?contentId=숫자&#10;694602_1 → viewer NOVEL+COMIC 2개&#10;naverbooks://... → 그대로 활성화"></textarea>
     </div>
 
     <!-- 리스트 패널 -->
@@ -319,41 +319,47 @@
     if (!document.hidden && isAutoMode) setTimeout(autoClickNext, 1000);
   });
 
+  // 6자리_볼륨 → NOVEL/COMIC 쌍 생성
+  const makeViewerPair = (cid, vol) => [
+    { href: `naverbooks://viewer?serviceType=NOVEL&contentId=${cid}&volumeNo=${vol}`, label: `${cid}_${vol} (소설일 때)` },
+    { href: `naverbooks://viewer?serviceType=COMIC&contentId=${cid}&volumeNo=${vol}`, label: `${cid}_${vol} (만화일 때)` },
+  ];
+
   const getInputs = () =>
     document.getElementById('numInput').value
       .split(/\n/)
       .map(s => s.trim())
       .filter(s => s.length > 0)
-      .map(s => {
-        if (s.startsWith('naverbooks://')) return { href: s, label: s };
+      .flatMap(s => {
+        if (s.startsWith('naverbooks://')) return [{ href: s, label: s }];
 
         // 6자리_숫자 또는 6자리_숫자.확장자
         const volMatch = s.match(/^(\d{6})_(\d+)(?:\.\w+)?$/);
-        if (volMatch) {
-          const [, cid, vol] = volMatch;
-          return {
-            href: `naverbooks://viewer?serviceType=NOVEL&contentId=${cid}&volumeNo=${vol}`,
-            label: s
-          };
-        }
+        if (volMatch) return makeViewerPair(volMatch[1], volMatch[2]);
 
         // 순수 숫자
         const pureMatch = s.match(/^(\d+)$/);
         if (pureMatch) {
           const n = pureMatch[1];
-          if (n.length === 5) return { href: `naverbooks://event?eventNo=${n}`, label: n };
-          if (n.length === 6) return { href: `naverbooks://titleEnd?contentId=${n}`, label: n };
-          return null; // 그 외 자릿수 무시
+          if (n.length === 5) return [{ href: `naverbooks://event?eventNo=${n}`, label: n }];
+          if (n.length === 6) return [{ href: `naverbooks://titleEnd?contentId=${n}`, label: n }];
         }
 
-        return null;
-      })
-      .filter(Boolean);
+        return [];
+      });
 
-  const getNumbers = () =>
-    getInputs()
-      .filter(item => /^\d+$/.test(item.label))
-      .map(item => parseInt(item.label, 10));
+  // 자동생성용 첫 입력 시드: 5자리 숫자 또는 6자리_볼륨
+  const getFirstSeed = () => {
+    const lines = document.getElementById('numInput').value
+      .split(/\n/).map(s => s.trim()).filter(s => s.length > 0);
+    for (const s of lines) {
+      const volMatch = s.match(/^(\d{6})_(\d+)(?:\.\w+)?$/);
+      if (volMatch) return { type: 'viewer', cid: volMatch[1], vol: parseInt(volMatch[2], 10) };
+      const pureMatch = s.match(/^(\d+)$/);
+      if (pureMatch && pureMatch[1].length === 5) return { type: 'event', n: parseInt(pureMatch[1], 10) };
+    }
+    return null;
+  };
 
   const createItem = ({ href, label }) => {
     const a = document.createElement('a');
@@ -392,7 +398,7 @@
 
   const isListVisible = () => !document.getElementById('listPanel').hidden;
 
-  // 지정 링크: 입력된 번호들 각각 링크 생성
+  // 지정 링크
   document.getElementById('btnManual').addEventListener('click', () => {
     if (isListVisible()) { resetToInput(); return; }
     const items = getInputs();
@@ -400,15 +406,26 @@
     buildList(items);
   });
 
-  // 링크 자동생성: 첫 번째 숫자부터 50개 순차 생성
+  // 링크 자동생성
   document.getElementById('btnAutoGen').addEventListener('click', () => {
     if (isListVisible()) { resetToInput(); return; }
-    const nums = getNumbers();
-    if (!nums.length) return;
-    buildList(Array.from({ length: 50 }, (_, i) => {
-      const n = nums[0] + i;
-      return { href: `naverbooks://event?eventNo=${n}`, label: String(n) };
-    }));
+    const seed = getFirstSeed();
+    if (!seed) return;
+
+    let items;
+    if (seed.type === 'viewer') {
+      // 6자리_볼륨: volumeNo를 +1씩 50개, 각각 NOVEL/COMIC 쌍
+      items = Array.from({ length: 50 }, (_, i) =>
+        makeViewerPair(seed.cid, seed.vol + i)
+      ).flat();
+    } else {
+      // 5자리 event: +1씩 50개
+      items = Array.from({ length: 50 }, (_, i) => {
+        const n = seed.n + i;
+        return { href: `naverbooks://event?eventNo=${n}`, label: String(n) };
+      });
+    }
+    buildList(items);
   });
 
   // 자동활성화
@@ -418,7 +435,7 @@
     autoClickNext();
   });
 
-  // ★표시: 마지막 활성화된 링크에 별표 토글
+  // ★표시
   document.getElementById('btnStar').addEventListener('click', () => {
     if (!lastEl) return;
     if (lastEl.hasAttribute('data-star')) {
