@@ -243,7 +243,7 @@
     <!-- 입력 패널 -->
     <div class="input-panel" id="inputPanel">
       <textarea class="number-textarea" id="numInput"
-        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;숫자 → naverbooks://event?eventNo=숫자&#10;naverbooks://... → 그대로 활성화&#10;자동생성 → 첫 번호부터 50개"></textarea>
+        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;5자리 → event?eventNo=숫자&#10;6자리 → titleEnd?contentId=숫자&#10;694602_1 → viewer (NOVEL)&#10;naverbooks://... → 그대로 활성화"></textarea>
     </div>
 
     <!-- 리스트 패널 -->
@@ -326,8 +326,26 @@
       .filter(s => s.length > 0)
       .map(s => {
         if (s.startsWith('naverbooks://')) return { href: s, label: s };
-        const n = parseInt(s, 10);
-        if (!isNaN(n)) return { href: `naverbooks://event?eventNo=${n}`, label: String(n) };
+
+        // 6자리_숫자 또는 6자리_숫자.확장자
+        const volMatch = s.match(/^(\d{6})_(\d+)(?:\.\w+)?$/);
+        if (volMatch) {
+          const [, cid, vol] = volMatch;
+          return {
+            href: `naverbooks://viewer?serviceType=NOVEL&contentId=${cid}&volumeNo=${vol}`,
+            label: s
+          };
+        }
+
+        // 순수 숫자
+        const pureMatch = s.match(/^(\d+)$/);
+        if (pureMatch) {
+          const n = pureMatch[1];
+          if (n.length === 5) return { href: `naverbooks://event?eventNo=${n}`, label: n };
+          if (n.length === 6) return { href: `naverbooks://titleEnd?contentId=${n}`, label: n };
+          return null; // 그 외 자릿수 무시
+        }
+
         return null;
       })
       .filter(Boolean);
