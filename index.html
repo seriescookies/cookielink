@@ -243,7 +243,7 @@
     <!-- 입력 패널 -->
     <div class="input-panel" id="inputPanel">
       <textarea class="number-textarea" id="numInput"
-        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;5자리 → event?eventNo=숫자&#10;6자리 → titleEnd?contentId=숫자&#10;694602_1 → viewer NOVEL+COMIC 2개&#10;naverbooks://... → 그대로 활성화"></textarea>
+        placeholder="번호 또는 딥링크 입력 (한 줄에 하나씩)&#10;&#10;5자리 → event?eventNo=숫자&#10;6자리 → titleEnd?contentId=숫자&#10;694602_1 → viewer NOVEL+COMIC 2개&#10;694602_1n → viewer NOVEL만&#10;694602_1c → viewer COMIC만&#10;naverbooks://... → 그대로 활성화"></textarea>
     </div>
 
     <!-- 리스트 패널 -->
@@ -321,8 +321,8 @@
 
   // 6자리_볼륨 → NOVEL/COMIC 쌍 생성
   const makeViewerPair = (cid, vol) => [
-    { href: `naverbooks://viewer?serviceType=NOVEL&contentId=${cid}&volumeNo=${vol}`, label: `${cid}_${vol} (소설일 때)` },
-    { href: `naverbooks://viewer?serviceType=COMIC&contentId=${cid}&volumeNo=${vol}`, label: `${cid}_${vol} (만화일 때)` },
+    { href: `naverbooks://viewer?serviceType=NOVEL&contentId=${cid}&volumeNo=${vol}`, label: `${cid}_${vol}n (소설)` },
+    { href: `naverbooks://viewer?serviceType=COMIC&contentId=${cid}&volumeNo=${vol}`, label: `${cid}_${vol}c (코믹)` },
   ];
 
   const getInputs = () =>
@@ -333,7 +333,13 @@
       .flatMap(s => {
         if (s.startsWith('naverbooks://')) return [{ href: s, label: s }];
 
-        // 6자리_숫자 또는 6자리_숫자.확장자
+        // 6자리_숫자n → 소설만, 6자리_숫자c → 코믹만, 6자리_숫자 → 둘 다
+        const volMatchN = s.match(/^(\d{6})_(\d+)[nN](?:\.\w+)?$/);
+        if (volMatchN) return [{ href: `naverbooks://viewer?serviceType=NOVEL&contentId=${volMatchN[1]}&volumeNo=${volMatchN[2]}`, label: `${volMatchN[1]}_${volMatchN[2]}n (소설)` }];
+
+        const volMatchC = s.match(/^(\d{6})_(\d+)[cC](?:\.\w+)?$/);
+        if (volMatchC) return [{ href: `naverbooks://viewer?serviceType=COMIC&contentId=${volMatchC[1]}&volumeNo=${volMatchC[2]}`, label: `${volMatchC[1]}_${volMatchC[2]}c (코믹)` }];
+
         const volMatch = s.match(/^(\d{6})_(\d+)(?:\.\w+)?$/);
         if (volMatch) return makeViewerPair(volMatch[1], volMatch[2]);
 
@@ -353,6 +359,10 @@
     const lines = document.getElementById('numInput').value
       .split(/\n/).map(s => s.trim()).filter(s => s.length > 0);
     for (const s of lines) {
+      const volMatchN = s.match(/^(\d{6})_(\d+)[nN](?:\.\w+)?$/);
+      if (volMatchN) return { type: 'viewerN', cid: volMatchN[1], vol: parseInt(volMatchN[2], 10) };
+      const volMatchC = s.match(/^(\d{6})_(\d+)[cC](?:\.\w+)?$/);
+      if (volMatchC) return { type: 'viewerC', cid: volMatchC[1], vol: parseInt(volMatchC[2], 10) };
       const volMatch = s.match(/^(\d{6})_(\d+)(?:\.\w+)?$/);
       if (volMatch) return { type: 'viewer', cid: volMatch[1], vol: parseInt(volMatch[2], 10) };
       const pureMatch = s.match(/^(\d+)$/);
@@ -413,7 +423,17 @@
     if (!seed) return;
 
     let items;
-    if (seed.type === 'viewer') {
+    if (seed.type === 'viewerN') {
+      items = Array.from({ length: 50 }, (_, i) => {
+        const vol = seed.vol + i;
+        return { href: `naverbooks://viewer?serviceType=NOVEL&contentId=${seed.cid}&volumeNo=${vol}`, label: `${seed.cid}_${vol}n (소설)` };
+      });
+    } else if (seed.type === 'viewerC') {
+      items = Array.from({ length: 50 }, (_, i) => {
+        const vol = seed.vol + i;
+        return { href: `naverbooks://viewer?serviceType=COMIC&contentId=${seed.cid}&volumeNo=${vol}`, label: `${seed.cid}_${vol}c (코믹)` };
+      });
+    } else if (seed.type === 'viewer') {
       // 6자리_볼륨: volumeNo를 +1씩 50개, 각각 NOVEL/COMIC 쌍
       items = Array.from({ length: 50 }, (_, i) =>
         makeViewerPair(seed.cid, seed.vol + i)
